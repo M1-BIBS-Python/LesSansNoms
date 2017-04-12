@@ -9,9 +9,9 @@ def RMSD_global(model1, model2):
         Output : RMSD (float).
 	"""
     D = len(model1[0])
-    N = len(model1)
-    rmsd = 0.0
+    N = len(model1)/5
+    RMSD = 0.0
     for m1, m2 in zip(model1, model2)     # zip retourne une liste de tuples
-        rmsd += sum([(m1[i]-m2[i])**2.0 for i in range(D)])
+        rmsd += sum([(m1[i]-m2[i])**2.0 for i in range(D)])  # liste par comprehension
 
-    return np.sqrt(rmsd/N)    # racine carree sur chaque element de la liste
+    return np.sqrt(RMSD/N)    # racine carree sur chaque element de la liste
