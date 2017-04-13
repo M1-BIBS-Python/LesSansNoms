@@ -102,7 +102,7 @@ def pars_RMSD(dPDB):
 
     """
 
-    dRMSD = {}               # initialisation du dictionnaire RMSD
+    dRMSD = {}                         # initialisation du dictionnaire RMSD
     compteur=0
     list_CA=[]
 
@@ -119,10 +119,4 @@ def pars_RMSD(dPDB):
         dRMSD[compteur] = new_list
         compteur += 1
 
-    print dRMSD
     return dRMSD
-
-dictionnaire = {}
-dictionnaire = parser_pdb()
-A=pars_RMSD(dictionnaire)
-print A
