@@ -93,6 +93,7 @@ def parserPDB(infile):
 
 #------------------------------------------------------------------
 # Fontions concernant un parseur avec carbones alpha uniquement
+
 def parserPDB_CA(infile) :
     """ Cette fonction a pour but de parser un fichier de type pdb afin
     d'en recuperer les informations sur les carbones alpha.
@@ -101,51 +102,79 @@ def parserPDB_CA(infile) :
     Output : dictionnaire contenant les informations sur les carbones alpha.
 
     """
-        # lecture du fichier PDB
-        f = open(infile, "r")
-        lines = f.readlines()
-        f.close()
 
-        # var init
-        conf= True
-        firstline = True
-        prevres = None
-        dPDB = {}
-        dPDB["conformation"] = []
-        dPDB["liste_residus"] = []
+    # Test d'ouverture du fichier
+    try:
+		f = open(infile,'r')
+    except:
+		print "Erreur, le fichier n'a pas pu s'ouvrir"
+		sys.exit(1)
 
-        # parcoure le PDB
-        for line in lines :
-                if line[0:5] == "MODEL" :
-                        conf=int(line[6:14])
-                        if not conf in dPDB["conformation"] :
-                                dPDB["conformation"].append(conf)
-                                dPDB[conf] = {}
-                                dPDB[conf]["liste_residus"] = []
-                elif line[0:4] == "ATOM" :
-                    if line[13:15] == "CA":
-                        # On ne retient que les atomes du squelette peptidique
-                        curres = "%s"%(line[22:26]).strip()
-                        if not curres in dPDB[conf]["liste_residus"] :
-                                dPDB[conf]["liste_residus"].append(curres)
-                                dPDB[conf][curres] = {}
-                                dPDB[conf][curres]["nom_resid"] = string.strip(line[17:20])
-                                dPDB[conf][curres]["liste_atomes"] = []
-
-                        atomtype = string.strip(line[12:16])
-                        dPDB[conf][curres]["liste_atomes"].append(atomtype)
-                        dPDB[conf][curres][atomtype] = {}
-                        dPDB[conf][curres][atomtype]["x"] = float(line[30:38])
-                        dPDB[conf][curres][atomtype]["y"] = float(line[38:46])
-                        dPDB[conf][curres][atomtype]["z"] = float(line[46:54])
+    lines  = f.readlines()
+    number_of_lines=len(lines)
 
 
-        return dPDB
+    # Test fichier vide
+    if number_of_lines==0:
+		print "Erreur, le fichier est vide"
+		sys.exit(1)
+
+    # Initialisation d'un dictionnaire
+    dicPDB = {}
+    # Initialisation d'un flag pour remplir la liste des atomes
+    Flag = False
+
+    for line in lines:
+
+		if line[0:5] == "MODEL":
+			modelnumber = string.strip(line[10:14])
+			dicPDB[modelnumber] = {}
+			dicPDB[modelnumber]["listChains"] = []  # numero du residu
+			dicPDB[modelnumber]["listRes"] = []     # noms des residus
+			# le dictionnaire a la cle "listChains" qui prend une liste
+
+												   # Pour toutes les lignes qui commencent par ATOM (celles qui ont des atomes)
+		elif line[0:4] == "ATOM":
+			chain = line[24:27]
+												   # on ne selectionne que les lignes qui contiennent des ATOM
+			if chain not in dicPDB[modelnumber]["listChains"]:
+				dicPDB[modelnumber]["listChains"].append(chain)
+				dicPDB[modelnumber]["listRes"].append(string.strip(line[17:20]))
+				dicPDB[modelnumber][chain] = {}
+                                                    # pour la cle number ayant pour cle "resname"
+			if dicPDB[modelnumber][chain].has_key("resname") == False:
+				dicPDB[modelnumber][chain]["resname"] = string.strip(line[17:20])
+				dicPDB[modelnumber][chain]["atomlist"] = []  # a pour cle atomlist et prend une liste
+
+			atomtype = string.strip(line[13:16])
+			#print atomtype
+
+			dicPDB[modelnumber][chain]["atomlist"].append(atomtype) # ajout de l'atome a la liste
+
+			dicPDB[modelnumber][chain][atomtype] = {}    # cree un dictionnaire dans dicPBD[chain][number]
+
+
+			if atomtype == "CA": #on conserve dans une autre partie du dictionnaire les carbones alpha
+				dicPDB[modelnumber][chain]["CA"] = {}
+				dicPDB[modelnumber][chain]["CA"]["x"] = float(line[30:38])
+				dicPDB[modelnumber][chain]["CA"]["y"] = float(line[38:46])
+				dicPDB[modelnumber][chain]["CA"]["z"] = float(line[46:54])
+				dicPDB[modelnumber][chain]["CA"]["id"] = line[6:11].strip()
+				dicPDB[modelnumber][chain]["CA"]["lyst"] = [float(line[30:38]),float(line[38:46]),float(line[46:54]),line[6:11].strip()]
+
+	# Test presence d'ATOM
+    if dicPDB==0:
+		print "Le fichier ne contient pas d'ATOM"
+		sys.exit(1)
+
+    # Fermeture du fichier
+    f.close()
+
+    return dicPDB
 
 
 
-
-def write2PDB(dPDB, filout = "PDB2_out.pdb") :
+def writePDB_CA(dPDB, filout = "PDB2_out.pdb") :
     """ Ecriture des coordonnees de chaque atome dans un fichier .pdb
         Input : dictionnaire PDB
         Output : fichier contenant les coordonnees
@@ -283,8 +312,6 @@ def CenterOfMassConf(dPDB):
 
     return dict_coord
 
-#------------------------------------------------------------------
-
 
 #------------------------------------------------------------------
 # Informations sur le projet
@@ -297,6 +324,7 @@ def usage() :
 
 #------------------------------------------------------------------
 # MAIN
+
 ###############################################
 ###        OUVERTURE DU FICHIER .PDB        ###
 ###############################################
