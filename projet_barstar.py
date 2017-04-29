@@ -95,8 +95,7 @@ def parserPDB(infile):
 # Fontions concernant un parseur avec carbones alpha uniquement
 def parserPDB_CA(infile) :
     """ Cette fonction a pour but de parser un fichier de type pdb afin
-    d'en recuperer les informations sur les carbones alpha qui composent
-    les acides amines.
+    d'en recuperer les informations sur les carbones alpha.
 
     Input : fichier pdb a parser.
     Output : dictionnaire contenant les informations sur les carbones alpha.
@@ -148,8 +147,8 @@ def parserPDB_CA(infile) :
 
 def write2PDB(dPDB, filout = "PDB2_out.pdb") :
     """ Ecriture des coordonnees de chaque atome dans un fichier .pdb
-        Input : PDB dictionnary
-        Output : file containing the coordinates
+        Input : dictionnaire PDB
+        Output : fichier contenant les coordonnees
     """
 
     fout = open(filout, "w")
