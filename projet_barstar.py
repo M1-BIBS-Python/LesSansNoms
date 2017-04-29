@@ -46,6 +46,7 @@ def parserPDB(infile):
 		if line[0:5] == "MODEL":
 			modelnumber = string.strip(line[10:14])
 			dicPDB[modelnumber] = {}
+			modelnumber = int(modelnumber)
 			dicPDB[modelnumber]["listChains"] = []  # numero du residu
 			dicPDB[modelnumber]["listRes"] = []     # noms des residus
 			# le dictionnaire a la cle "listChains" qui prend une liste
