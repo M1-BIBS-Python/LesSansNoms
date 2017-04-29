@@ -94,9 +94,14 @@ def parserPDB(infile):
 #------------------------------------------------------------------
 # Fontions concernant un parseur avec carbones alpha uniquement
 def parserPDB_CA(infile) :
-    # Ce parseur (qui fonctionne de la meme maniere que le fichier parse.pdb) permet de parser le fichier pdb en ne retenant que les atomes du
-    # squelette peptidique de chaque residu (CA, C, O, N)
+    """ Cette fonction a pour but de parser un fichier de type pdb afin
+    d'en recuperer les informations sur les carbones alpha qui composent
+    les acides amines.
 
+    Input : fichier pdb a parser.
+    Output : dictionnaire contenant les informations sur les carbones alpha.
+
+    """
         # lecture du fichier PDB
         f = open(infile, "r")
         lines = f.readlines()
