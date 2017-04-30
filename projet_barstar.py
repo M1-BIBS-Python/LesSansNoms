@@ -95,7 +95,7 @@ def parserPDB(infile):
 
 
 #------------------------------------------------------------------
-# Fontions concernant un parseur avec carbones alpha uniquement
+# Parseur avec carbones alpha uniquement
 
 def parserPDB_CA(infile):
     """ Cette fonction a pour but de parser un fichier de type pdb afin
@@ -229,7 +229,7 @@ def rmsd_local(dPDB): #on donne soit un dico specifique soit le dico general et 
 # Rayon de giration
 
 def rayon_giration(dPDB) :
-    """ Calcule le rayon de giration de chaque conformation du dictionnaire donne en entree
+    """ Calcul du rayon de giration de chaque conformation du dictionnaire donne en entree
         Rayon de giration : distance, pour chaque conformation, entre son centre de masse
         et l'atome le plus eloigne de ce centre de masse.
     """
@@ -268,7 +268,8 @@ def centerMassOfConf(dPDB):
         Tient compte de tous les atomes de chaque residus.
 
         Input : dictionnaire
-        Output : centre de masse.
+        Output : dictionnaire contenant le centre de masse
+        de chaque conformation.
     """
 
     for model in range(0,len(dPDB)):
@@ -290,8 +291,12 @@ def centerMassOfConf(dPDB):
 
 
 def centerMassOfRes(dPDB):
-    """ Calcule le centre de masse d'un residu en tenant compte
+    """ Calcul du centre de masse d'un residu en tenant compte
         de tous ses atomes.
+
+        Input : dictionnaire
+        Output : dictionnaire contenant le centre de masse
+        de chaque residus.
     """
 
     for model in range(0,len(dPDB)):
@@ -448,7 +453,7 @@ def usage() :
     """
         Affichage des informations concernant le projet et son utilisation
     """
-    print("\n\nProjet d'Alexandra BENAMAR et Robin DROIT\nCe programme permet de parser un fichier .pdb\net calcule les distances globales et locales de la proteine.\nUsage : ./main.py -pdb <nom du fichier PDB>\n")
+    print("\n\nProjet d'Alexandra BENAMAR et Robin DROIT\nCe programme permet de parser un fichier .pdb\net calcule les distances globales et locales de la proteine.\nUsage : ./projet_barstar.py -pdb <nom du fichier PDB>\n")
 
 #------------------------------------------------------------------
 # MAIN
