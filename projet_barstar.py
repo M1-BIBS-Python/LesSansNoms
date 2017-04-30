@@ -6,6 +6,8 @@ import sys                     # gestion des erreurs et des arguments
 import string
 import math
 import numpy as np
+import matplotlib.pyplot as plt
+from pylab import *
 
 #------------------------------------------------------------------
 # Fonction permettant de parser le fichier
@@ -95,7 +97,7 @@ def parserPDB(infile):
 #------------------------------------------------------------------
 # Fontions concernant un parseur avec carbones alpha uniquement
 
-def parserPDB_CA(infile) :
+def parserPDB_CA(infile):
     """ Cette fonction a pour but de parser un fichier de type pdb afin
     d'en recuperer les informations sur les carbones alpha.
 
@@ -128,15 +130,17 @@ def parserPDB_CA(infile) :
     for line in lines:
 
 		if line[0:5] == "MODEL":
-			modelnumber = string.strip(line[10:14])
+			modelnumber = int(string.strip(line[10:14]))
 			dicPDB[modelnumber] = {}
+			modelnumber = int(modelnumber)
 			dicPDB[modelnumber]["listChains"] = []  # numero du residu
 			dicPDB[modelnumber]["listRes"] = []     # noms des residus
 			# le dictionnaire a la cle "listChains" qui prend une liste
 
 												   # Pour toutes les lignes qui commencent par ATOM (celles qui ont des atomes)
-		elif line[0:4] == "ATOM":
+		elif line[0:4] == "ATOM" and line[13:15] == "CA":
 			chain = line[24:27]
+
 												   # on ne selectionne que les lignes qui contiennent des ATOM
 			if chain not in dicPDB[modelnumber]["listChains"]:
 				dicPDB[modelnumber]["listChains"].append(chain)
@@ -145,19 +149,24 @@ def parserPDB_CA(infile) :
                                                     # pour la cle number ayant pour cle "resname"
 			if dicPDB[modelnumber][chain].has_key("resname") == False:
 				dicPDB[modelnumber][chain]["resname"] = string.strip(line[17:20])
+
 				dicPDB[modelnumber][chain]["atomlist"] = []  # a pour cle atomlist et prend une liste
 
 			atomtype = string.strip(line[13:16])
+			#print atomtype
+
 			dicPDB[modelnumber][chain]["atomlist"].append(atomtype) # ajout de l'atome a la liste
+
 			dicPDB[modelnumber][chain][atomtype] = {}    # cree un dictionnaire dans dicPBD[chain][number]
 
-			if atomtype == "CA": #on conserve dans une autre partie du dictionnaire les carbones alpha
-				dicPDB[modelnumber][chain]["CA"] = {}
-				dicPDB[modelnumber][chain]["CA"]["x"] = float(line[30:38])
-				dicPDB[modelnumber][chain]["CA"]["y"] = float(line[38:46])
-				dicPDB[modelnumber][chain]["CA"]["z"] = float(line[46:54])
-				dicPDB[modelnumber][chain]["CA"]["id"] = line[6:11].strip()
-				dicPDB[modelnumber][chain]["CA"]["lyst"] = [float(line[30:38]),float(line[38:46]),float(line[46:54]),line[6:11].strip()]
+
+			dicPDB[modelnumber][chain][atomtype]["x"] = float(line[30:38])
+			dicPDB[modelnumber][chain][atomtype]["y"] = float(line[38:46])
+			dicPDB[modelnumber][chain][atomtype]["z"] = float(line[46:54])
+			dicPDB[modelnumber][chain][atomtype]["id"] = line[6:11].strip()
+			dicPDB[modelnumber][chain][atomtype]["lyst"] = [float(line[30:38]),float(line[38:46]),float(line[46:54]),line[6:11].strip()]
+
+
 
 	# Test presence d'ATOM
     if dicPDB==0:
@@ -166,26 +175,7 @@ def parserPDB_CA(infile) :
 
     # Fermeture du fichier
     f.close()
-
     return dicPDB
-
-
-
-def writePDB_CA(dPDB, filout = "PDB_CA_out.pdb") :
-    """ Ecriture des coordonnees de chaque atome dans un fichier .pdb
-        Input : dictionnaire PDB
-        Output : fichier contenant les coordonnees
-    """
-
-    fout = open(filout, "w")
-
-    for confo in dPDB["listChains"]:
-        for res in dPDB[confo]["listRes"]:
-            fout.write("RMSD        %8.3f\n"%(dPDB[confo][res]["rmsd"]))
-            for atom in dPDB[confo][res]["atomlist"] :
-                fout.write("ATOM  %4s      %4s     %8.3f  %8.3f  %8.3f\n"%(confo, res,dPDB[confo][res][atom]["x"], dPDB[confo][res][atom]["y"],dPDB[confo][res][atom]["z"]))
-                    #      "ATOM" confo     RES       X     Y      Z
-    fout.close()
 
 
 #------------------------------------------------------------------
@@ -195,9 +185,10 @@ def rmsd_global(dPDB):
     """ Calcul du RMSD global de chaque modele avec uniquement les carbones alpha
         Output : RMSD entre le modele pris en compte et le modele de reference
     """
-    for model in range(0,len(dPDB)):
-        n=somme=0
+
+    for model in dPDB.keys():
         conflist = dPDB[model]["listChains"]
+        n=somme=0
         for confo in conflist:
             atomlist = dPDB[model][confo]["atomlist"]
             for atom in atomlist:
@@ -206,8 +197,8 @@ def rmsd_global(dPDB):
                 +(dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
                 somme+=distance
                 n+=1
-
-        dPDB[model]["rmsd"] = math.sqrt(somme/n)
+        rmsd = math.sqrt(somme/n)
+        dPDB[model]["rmsd"] = rmsd
 
 
 
@@ -373,7 +364,7 @@ def rmsd_moyen(dPDB):
 #------------------------------------------------------------------
 # Ecriture des resultats dans des fichiers de sortie
 
-def print_PDB(dPDB, filout="output_pdb.txt"):
+def write_PDB(dPDB, filout="output_pdb.txt"):
     """
         Ecriture des coordonnees de chaque atome dans un fichier .txt
     """
@@ -396,7 +387,7 @@ def print_PDB(dPDB, filout="output_pdb.txt"):
                 %(model, conf, atom, dPDB[model][conf][atom]["x"], dPDB[model][conf][atom]["y"], dPDB[model][conf][atom]["z"]))
     fout.close()
 
-def print_PDB_CA(dPDB, filout="output_pdb.txt"):
+def write_PDB_CA(dPDB, filout="output2_pdb.txt"):
     """
         Ecriture des coordonnees de chaque CA dans un fichier .txt
     """
@@ -407,12 +398,12 @@ def print_PDB_CA(dPDB, filout="output_pdb.txt"):
             fout.write("RMSD   %4s                  %3s                     %8.3f\n"
             %(model, conf, dPDB[model][conf]["rmsd"]))
             for atom in dPDB[model][conf]["atomlist"]:
-                fout.write("ATOM  %4s       %4s      %4s     %8.3f%8.3f%8.3f\n"
+                fout.write("ATOM   %4s      %4s      %4s     %8.3f%8.3f%8.3f\n"
                 %(model, conf, atom, dPDB[model][conf][atom]["x"], dPDB[model][conf][atom]["y"], dPDB[model][conf][atom]["z"]))
     fout.close()
 
 
-def print_Gira(dPDB, fileout = "giration.pdb"):
+def write_Gira(dPDB, fileout = "giration.pdb"):
 
     fout = open(fileout, "w")
     for model in range(0,len(dPDB)):
@@ -421,7 +412,16 @@ def print_Gira(dPDB, fileout = "giration.pdb"):
     fout.close()
 
 
-def print_DMoy(dist_moy, fileout="dist_moy.pdb"):
+def write_RMSD(dPDB, fileout = "rmsd.pdb"):
+
+    fout = open(fileout, "w")
+    for model in range(0,len(dPDB)):
+        fout.write("CONFO   %4s   RMSD   %8.3f\n"
+        %(model, dPDB[model]["rmsd"]))
+    fout.close()
+
+
+def write_DMoy(dist_moy, fileout="dist_moy.pdb"):
 
     fout=open(fileout,"w")
     reslist=dist_moy["reslist"]
@@ -430,7 +430,8 @@ def print_DMoy(dist_moy, fileout="dist_moy.pdb"):
         %(res, dist_moy[res]))
     fout.close()
 
-def print_rmsd_moy(dRMSD, fileout="dist_moy.pdb"):
+
+def write_rmsd_moy(dRMSD, fileout="rmsd_moy.pdb"):
 
     fout=open(fileout,"w")
     reslist=dRMSD["reslist"]
@@ -452,10 +453,6 @@ def usage() :
 #------------------------------------------------------------------
 # MAIN
 
-###############################################
-###        OUVERTURE DU FICHIER .PDB        ###
-###############################################
-
 try:
     # on veut que le fichier .pdb soit en argument juste apres -pdb
     pdb_file = sys.argv[1]
@@ -468,24 +465,25 @@ except:
     sys.exit()
 
 
-dico_1 = parserPDB(pdb_file)
-centerMassOfConf(dico_1)
-centerMassOfRes(dico_1)
-distance(dico_1)
-rayon_giration(dico_1)
-rmsd_local(dico_1)
-dist_moy = distance_moyenne(dico_1)
-rmsd_moy = rmsd_moyen(dico_1)
-print_PDB(dico_1)
-print_Gira(dico_1)
-print_DMoy(dist_moy)
-print_rmsd_moy(rmsd_moy)
+dico = parserPDB(pdb_file)
+centerMassOfConf(dico)
+centerMassOfRes(dico)
+distance(dico)
+rayon_giration(dico)
+rmsd_local(dico)
+dist_moy = distance_moyenne(dico)
+rmsd_moy = rmsd_moyen(dico)
+write_PDB(dico)
+write_Gira(dico)
+write_DMoy(dist_moy)
+write_rmsd_moy(rmsd_moy)
 
 
-dico_2 = parserPDB_CA(pdb_file)
-rmsd_global(dico_2)
-rmsd_local(dico_2)
-print_PDB_CA(dico_2)
-print_PDB(dico_2)
-#print CenterOfMassConf(dico_1)
-#print Giration_local()
+dico2 = parserPDB_CA(pdb_file)
+rmsd_global(dico2)
+rmsd_local(dico2)
+write_PDB_CA(dico2)
+write_RMSD(dico2)
+
+#------------------------------------------------------------------
+# Graphiques
