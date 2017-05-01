@@ -359,6 +359,31 @@ def rmsd_moyen(dPDB):
     return rmsd_moy
 
 #------------------------------------------------------------------
+#recuperation des donnes de rmsd des residus 39 et 76
+
+def recup_39(dPDB):
+
+    vect39 = []
+    for i in sorted(dPDB.keys()):
+
+        for y in dPDB[i]["listChains"]:
+            if y == "39 ":
+                vect39.append(dPDB[i][y]["rmsd"])
+
+    return vect39
+
+def recup_76(dPDB):
+
+    vect76 = []
+    for i in sorted(dPDB.keys()):
+
+        for y in dPDB[i]["listChains"]:
+            if y == "76 ":
+                vect76.append(dPDB[i][y]["rmsd"])
+
+    return vect76
+
+#------------------------------------------------------------------
 # Ecriture des resultats dans des fichiers de sortie
 
 def write_PDB(dPDB, filout="output_pdb.pdb"):
@@ -533,3 +558,17 @@ ax[1].set_ylabel("Distance (en Angstrom)"); ax[1].set_xlabel("AA")
 fig.suptitle('RMSD moyen', fontsize=12)
 fig.text(.5,.5,'Enfouissement',fontsize=12,ha='center')
 #plt.show()
+
+#GRAPHE DONNANT LES RMSD DES RESIDUS 39 ET 76
+vect39 = recup_39(dico)
+vect76 = recup_76(dico)
+
+fig, ax = plt.subplots(2, sharex=True)
+fig.subplots_adjust(hspace=0.3)
+ax[0].plot(range(0,len(vect39)),vect39)
+ax[0].set_ylabel("RMSD 39(en Angstrom)")
+ax[1].plot(range(0,len(vect76)),vect76)
+ax[1].set_ylabel("RMSD 76(en Angstrom)")
+fig.suptitle('RMSD residu 39', fontsize=12)
+fig.text(.5,.5,'RMSD residu 76',fontsize=12,ha='center')
+plt.show()
