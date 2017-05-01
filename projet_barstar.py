@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from pylab import *
 
 #------------------------------------------------------------------
-# Parseur général
+# Parseur general
 
 def parserPDB(infile):
     """ Cette fonction a pour but de parser un fichier de type pdb afin
@@ -29,7 +29,7 @@ def parserPDB(infile):
 		print "Erreur, le fichier n'a pas pu s'ouvrir"
 		sys.exit(1)
 
-    lines  = f.readlines()
+    lines = f.readlines()
     number_of_lines=len(lines)
 
 
@@ -56,7 +56,6 @@ def parserPDB(infile):
 												   # Pour toutes les lignes qui commencent par ATOM (celles qui ont des atomes)
 		elif line[0:4] == "ATOM":
 			chain = line[24:27]
-
 												   # on ne selectionne que les lignes qui contiennent des ATOM
 			if chain not in dicPDB[modelnumber]["listChains"]:
 				dicPDB[modelnumber]["listChains"].append(chain)
@@ -65,7 +64,6 @@ def parserPDB(infile):
                                                     # pour la cle number ayant pour cle "resname"
 			if dicPDB[modelnumber][chain].has_key("resname") == False:
 				dicPDB[modelnumber][chain]["resname"] = string.strip(line[17:20])
-
 				dicPDB[modelnumber][chain]["atomlist"] = []  # a pour cle atomlist et prend une liste
 
 			atomtype = string.strip(line[12:16])
@@ -74,7 +72,6 @@ def parserPDB(infile):
 			dicPDB[modelnumber][chain]["atomlist"].append(atomtype) # ajout de l'atome a la liste
 
 			dicPDB[modelnumber][chain][atomtype] = {}    # cree un dictionnaire dans dicPBD[chain][number]
-
 
 			dicPDB[modelnumber][chain][atomtype]["x"] = float(line[30:38])
 			dicPDB[modelnumber][chain][atomtype]["y"] = float(line[38:46])
@@ -487,3 +484,52 @@ write_RMSD(dico2)
 
 #------------------------------------------------------------------
 # Graphiques
+
+
+# LISTE : RMSD DE CHAQUE CONFORMATION
+list_RMSD = []
+for model in dico2.keys():
+    list_RMSD.append(dico2[model]["rmsd"])
+
+
+# LISTE : RAYON DE GIRATION DE CHAQUE CONFORMATION
+list_Gira = []
+for model in dico.keys():
+    list_Gira.append(dico[model]["giration"])
+
+
+# GRAPHIQUES DU RMSD GLOBAL ET DU RAYON GIRATOIRE DE CHAQUE CONFORMATION
+fig, ax = plt.subplots(2, sharex=True)
+fig.subplots_adjust(hspace=0.3)
+ax[0].plot(range(1,len(list_RMSD)),list_RMSD[1:])
+ax[0].set_ylabel("RMSD (en Angstrom)")
+ax[1].plot(range(1,len(list_RMSD)),list_Gira[1:],range(1,len(list_RMSD)),[list_Gira[0] for x in range(1,len(list_RMSD))],'r-')
+ax[1].set_ylabel("Rayon giratoire (en Angstrom)"); ax[1].set_xlabel("Modeles")
+fig.suptitle('Courbe RMSD', fontsize=12)
+fig.text(.5,.5,'Courbe rayon giratoire',fontsize=12,ha='center')
+#plt.show()
+
+# LISTE : RMSD MOYENS POUR CHAQUE AA
+rmsd_list = []
+reslist = rmsd_moy["reslist"]
+for res in reslist :
+    rmsd_list.append(rmsd_moy[res])
+
+# LISTE : DISTANCES MOYENNES AU CENTRE DE MASSE
+moy_list = []
+reslist = dist_moy["reslist"]
+for res in reslist :
+    moy_list.append(dist_moy[res])
+
+
+# GRAPHE DONNANT LES RMSD MOYENS POUR CHAQUE ACIDE AMINE
+# ET LES DISTANCES MOYENNES AU CENTRE DE MASSE
+fig, ax = plt.subplots(2, sharex=True)
+fig.subplots_adjust(hspace=0.3)
+ax[0].plot(range(0,len(rmsd_list)),rmsd_list)
+ax[0].set_ylabel("RMSD (en Angstrom)")
+ax[1].plot(range(0,len(rmsd_list)),moy_list,'r-')
+ax[1].set_ylabel("Distance (en Angstrom)"); ax[1].set_xlabel("AA")
+fig.suptitle('RMSD moyen', fontsize=12)
+fig.text(.5,.5,'Enfouissement',fontsize=12,ha='center')
+#plt.show()
