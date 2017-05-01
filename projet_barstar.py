@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from pylab import *
 
 #------------------------------------------------------------------
-# Fonction permettant de parser le fichier
+# Parseur général
 
 def parserPDB(infile):
     """ Cette fonction a pour but de parser un fichier de type pdb afin
@@ -68,7 +68,7 @@ def parserPDB(infile):
 
 				dicPDB[modelnumber][chain]["atomlist"] = []  # a pour cle atomlist et prend une liste
 
-			atomtype = string.strip(line[13:16])
+			atomtype = string.strip(line[12:16])
 			#print atomtype
 
 			dicPDB[modelnumber][chain]["atomlist"].append(atomtype) # ajout de l'atome a la liste
@@ -79,7 +79,7 @@ def parserPDB(infile):
 			dicPDB[modelnumber][chain][atomtype]["x"] = float(line[30:38])
 			dicPDB[modelnumber][chain][atomtype]["y"] = float(line[38:46])
 			dicPDB[modelnumber][chain][atomtype]["z"] = float(line[46:54])
-			dicPDB[modelnumber][chain][atomtype]["id"] = line[6:11].strip()
+			dicPDB[modelnumber][chain][atomtype]["id"] = line[7:11].strip()
 			dicPDB[modelnumber][chain][atomtype]["lyst"] = [float(line[30:38]),float(line[38:46]),float(line[46:54]),line[6:11].strip()]
 
 
@@ -153,20 +153,15 @@ def parserPDB_CA(infile):
 				dicPDB[modelnumber][chain]["atomlist"] = []  # a pour cle atomlist et prend une liste
 
 			atomtype = string.strip(line[13:16])
-			#print atomtype
 
 			dicPDB[modelnumber][chain]["atomlist"].append(atomtype) # ajout de l'atome a la liste
-
 			dicPDB[modelnumber][chain][atomtype] = {}    # cree un dictionnaire dans dicPBD[chain][number]
-
 
 			dicPDB[modelnumber][chain][atomtype]["x"] = float(line[30:38])
 			dicPDB[modelnumber][chain][atomtype]["y"] = float(line[38:46])
 			dicPDB[modelnumber][chain][atomtype]["z"] = float(line[46:54])
 			dicPDB[modelnumber][chain][atomtype]["id"] = line[6:11].strip()
 			dicPDB[modelnumber][chain][atomtype]["lyst"] = [float(line[30:38]),float(line[38:46]),float(line[46:54]),line[6:11].strip()]
-
-
 
 	# Test presence d'ATOM
     if dicPDB==0:
@@ -369,9 +364,9 @@ def rmsd_moyen(dPDB):
 #------------------------------------------------------------------
 # Ecriture des resultats dans des fichiers de sortie
 
-def write_PDB(dPDB, filout="output_pdb.txt"):
+def write_PDB(dPDB, filout="output_pdb.pdb"):
     """
-        Ecriture des coordonnees de chaque atome dans un fichier .txt
+        Ecriture des coordonnees de chaque atome dans un fichier .pdb
     """
     fout = open(filout, "w")
 
@@ -462,11 +457,11 @@ try:
     # on veut que le fichier .pdb soit en argument juste apres -pdb
     pdb_file = sys.argv[1]
     # affichage
-    print "Fichier pdb: ", pdb_file
+    print "Fichier pdb a traiter : ", pdb_file
 
 except:
     usage()
-    print "ERROR: please, enter the name of the pdb input"
+    print "ERREUR: veuillez entrer le nom du fichier .pdb"
     sys.exit()
 
 
