@@ -4,7 +4,7 @@
 import os                      # gestion de fichiers et de dossiers
 import sys                     # gestion des erreurs et des arguments
 import string
-import math
+from math import *
 import numpy as np
 import matplotlib.pyplot as plt
 from pylab import *
@@ -179,20 +179,39 @@ def rmsd_global(dPDB):
     """
 
     for model in dPDB.keys():
+        n=0
+        somme=0
         conflist = dPDB[model]["listChains"]
-        n=somme=0
         for confo in conflist:
             atomlist = dPDB[model][confo]["atomlist"]
             for atom in atomlist:
-                distance=(dPDB[model][confo][atom]["x"]-dPDB[0][confo][atom]["x"])**2
-                +(dPDB[model][confo][atom]["y"]-dPDB[0][confo][atom]["y"])**2
-                +(dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
-                somme+=distance
+                distance=(dPDB[model][confo][atom]["x"]-dPDB[0][confo][atom]["x"])**2 + (dPDB[model][confo][atom]["y"]-dPDB[0][confo][atom]["y"])**2 + (dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
+                somme += distance
                 n+=1
-        rmsd = math.sqrt(somme/n)
+        rmsd = sqrt(somme/n)
         dPDB[model]["rmsd"] = rmsd
 
 
+
+def rmsd_local2(dPDB): #on donne soit un dico specifique soit le dico general et les numeros des modeles et on renvoi une liste de tous les rmsd de tous les residus
+    """
+        Permet de calculer l'ensemble des distances entre les differents carbones alpha
+        entre deux modeles.
+        Input : numeros des modeles a comparer et un dictionnaire. Le dictionnaire peut etre specifique
+        ou un dictionnaire general.
+        Output : liste des RMSD de tous les residus.
+    """
+    for model in dPDB.keys():
+        conflist = dPDB[model]["listChains"]
+        for confo in conflist:
+            n = 0
+            somme = 0
+            atomlist = dPDB[model][confo]["atomlist"]
+            for atom in atomlist:
+                distance=(dPDB[model][confo][atom]["x"]-dPDB[0][confo][atom]["x"])**2 + (dPDB[model][confo][atom]["y"]-dPDB[0][confo][atom]["y"])**2 + (dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
+                somme += distance
+                n += 1
+            dPDB[model][confo]["rmsd"] = sqrt(somme/n)
 
 def rmsd_local(dPDB): #on donne soit un dico specifique soit le dico general et les numeros des modeles et on renvoi une liste de tous les rmsd de tous les residus
     """
@@ -202,20 +221,17 @@ def rmsd_local(dPDB): #on donne soit un dico specifique soit le dico general et 
         ou un dictionnaire general.
         Output : liste des RMSD de tous les residus.
     """
-
-    for model in range(0,len(dPDB)):
+    for model in dPDB.keys():
         conflist = dPDB[model]["listChains"]
         for confo in conflist:
-            n=somme=0
+            n = 0
+            somme = 0
             atomlist = dPDB[model][confo]["atomlist"]
             for atom in atomlist:
-                distance=(dPDB[model][confo][atom]["x"]-dPDB[0][confo][atom]["x"])**2
-                +(dPDB[model][confo][atom]["y"]-dPDB[0][confo][atom]["y"])**2
-                +(dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
-                somme+=distance
-                n+=1
-
-            dPDB[model][confo]["rmsd"] = math.sqrt(somme/n)
+                distance=(dPDB[model][confo][atom]["x"]-dPDB[0][confo][atom]["x"])**2 + (dPDB[model][confo][atom]["y"]-dPDB[0][confo][atom]["y"])**2 + (dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
+                somme += distance
+                n += 1
+            dPDB[model][confo]["rmsd"] = sqrt(somme/n)
 
 #------------------------------------------------------------------
 # Rayon de giration
@@ -247,9 +263,7 @@ def distance(dPDB) :
     for model in range(0,len(dPDB)):
         confo_list = dPDB[model]["listChains"]
         for confo in confo_list:
-            distance = math.sqrt((dPDB[model][confo]["XCM"]-dPDB[model]["XCM"])**2
-            +(dPDB[model][confo]["YCM"]-dPDB[model]["YCM"])**2
-            +(dPDB[model][confo]["ZCM"]-dPDB[model]["ZCM"])**2)
+            distance = sqrt((dPDB[model][confo]["XCM"]-dPDB[model]["XCM"])**2+(dPDB[model][confo]["YCM"]-dPDB[model]["YCM"])**2+(dPDB[model][confo]["ZCM"]-dPDB[model]["ZCM"])**2)
             dPDB[model][confo]["dist_CM"] = distance
 
 #------------------------------------------------------------------
@@ -263,9 +277,8 @@ def centerMassOfConf(dPDB):
         Output : dictionnaire contenant le centre de masse
         de chaque conformation.
     """
-
     for model in range(0,len(dPDB)):
-        x=y=z=cpt=0
+        x=y=z=cpt=0.0
         confo_list = dPDB[model]["listChains"]
         for confo in confo_list :
             atomlt = dPDB[model][confo]["atomlist"]
@@ -281,7 +294,6 @@ def centerMassOfConf(dPDB):
         dPDB[model]["YCM"] = Ycm
         dPDB[model]["ZCM"] = Zcm
 
-
 def centerMassOfRes(dPDB):
     """ Calcul du centre de masse d'un residu en tenant compte
         de tous ses atomes.
@@ -294,7 +306,7 @@ def centerMassOfRes(dPDB):
     for model in range(0,len(dPDB)):
         confo_list = dPDB[model]["listChains"]
         for confo in confo_list :
-            cpt=x=y=z=0
+            cpt=x=y=z=0.0
             atomlt = dPDB[model][confo]["atomlist"]
             for atom in atomlt:
                 x += dPDB[model][confo][atom]['x']
@@ -342,7 +354,6 @@ def rmsd_moyen(dPDB):
     rmsd_moy={}
     rmsd_moy["reslist"]=[]
     n=0
-
     for model in range(0,len(dPDB)):
         confo_list = dPDB[model]["listChains"]
         for conf in confo_list:
@@ -357,31 +368,6 @@ def rmsd_moyen(dPDB):
         rmsd_moy[res]=rmsd_moy[res]/n
 
     return rmsd_moy
-
-#------------------------------------------------------------------
-#recuperation des donnes de rmsd des residus 39 et 76
-
-def recup_39(dPDB):
-
-    vect39 = []
-    for i in sorted(dPDB.keys()):
-
-        for y in dPDB[i]["listChains"]:
-            if y == "39 ":
-                vect39.append(dPDB[i][y]["rmsd"])
-
-    return vect39
-
-def recup_76(dPDB):
-
-    vect76 = []
-    for i in sorted(dPDB.keys()):
-
-        for y in dPDB[i]["listChains"]:
-            if y == "76 ":
-                vect76.append(dPDB[i][y]["rmsd"])
-
-    return vect76
 
 #------------------------------------------------------------------
 # Ecriture des resultats dans des fichiers de sortie
@@ -409,7 +395,7 @@ def write_PDB(dPDB, filout="output_pdb.pdb"):
                 %(model, conf, atom, dPDB[model][conf][atom]["x"], dPDB[model][conf][atom]["y"], dPDB[model][conf][atom]["z"]))
     fout.close()
 
-def write_PDB_CA(dPDB, filout="output2_pdb.txt"):
+def write_PDB_CA(dPDB, filout="output2_pdb.pdb"):
     """
         Ecriture des coordonnees de chaque CA dans un fichier .txt
     """
@@ -417,11 +403,10 @@ def write_PDB_CA(dPDB, filout="output2_pdb.txt"):
 
     for model in range(0,len(dPDB)):
         for conf in dPDB[model]["listChains"]:
-            fout.write("RMSD   %4s                  %3s                     %8.3f\n"
-            %(model, conf, dPDB[model][conf]["rmsd"]))
+            fout.write("RMSD        %8.3f\n"%(dPDB[model][conf]["rmsd"]))
             for atom in dPDB[model][conf]["atomlist"]:
-                fout.write("ATOM   %4s      %4s      %4s     %8.3f%8.3f%8.3f\n"
-                %(model, conf, atom, dPDB[model][conf][atom]["x"], dPDB[model][conf][atom]["y"], dPDB[model][conf][atom]["z"]))
+                fout.write("ATOM   %4s      %4s      %8.3f%8.3f%8.3f\n"%(model, conf, dPDB[model][conf][atom]["x"], dPDB[model][conf][atom]["y"], dPDB[model][conf][atom]["z"]))
+
     fout.close()
 
 
@@ -509,7 +494,6 @@ write_RMSD(dico2)
 
 #------------------------------------------------------------------
 # Graphiques
-
 
 # LISTE : RMSD DE CHAQUE CONFORMATION
 list_RMSD = []
