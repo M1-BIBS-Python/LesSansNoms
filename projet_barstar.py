@@ -543,6 +543,37 @@ fig.suptitle('RMSD moyen', fontsize=12)
 fig.text(.5,.5,'Enfouissement',fontsize=12,ha='center')
 #plt.show()
 
+#recuperation des donnes de rmsd des residus 39 et 76
+
+def recup_39(dPDB):
+    vect39 = []
+    for i in sorted(dPDB.keys()):
+
+        for y in dPDB[i]["listChains"]:
+            if y == "39 ":
+                vect39.append(dPDB[i][y]["rmsd"])
+
+    return vect39
+
+def recup_76(dPDB):
+
+    vect76 = []
+    for i in sorted(dPDB.keys()):
+
+        for y in dPDB[i]["listChains"]:
+            if y == "76 ":
+                vect76.append(dPDB[i][y]["rmsd"])
+
+    return vect76
+
+#------------------------------------------------------------------
+# Ecriture des resultats dans des fichiers de sortie
+
+def write_PDB(dPDB, filout="output_pdb.pdb"):
+ fig.suptitle('RMSD moyen', fontsize=12)
+ fig.text(.5,.5,'Enfouissement',fontsize=12,ha='center')
+ #plt.show()
+
 #GRAPHE DONNANT LES RMSD DES RESIDUS 39 ET 76
 vect39 = recup_39(dico)
 vect76 = recup_76(dico)
