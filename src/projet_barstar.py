@@ -194,26 +194,6 @@ def rmsd_global(dPDB):
 
 
 
-def rmsd_local2(dPDB): #on donne soit un dico specifique soit le dico general et les numeros des modeles et on renvoi une liste de tous les rmsd de tous les residus
-    """
-        Permet de calculer l'ensemble des distances entre les differents carbones alpha
-        entre deux modeles.
-        Input : numeros des modeles a comparer et un dictionnaire. Le dictionnaire peut etre specifique
-        ou un dictionnaire general.
-        Output : liste des RMSD de tous les residus.
-    """
-    for model in dPDB.keys():
-        conflist = dPDB[model]["listChains"]
-        for confo in conflist:
-            n = 0
-            somme = 0
-            atomlist = dPDB[model][confo]["atomlist"]
-            for atom in atomlist:
-                distance=(dPDB[model][confo][atom]["x"]-dPDB[0][confo][atom]["x"])**2 + (dPDB[model][confo][atom]["y"]-dPDB[0][confo][atom]["y"])**2 + (dPDB[model][confo][atom]["z"]-dPDB[0][confo][atom]["z"])**2
-                somme += distance
-                n += 1
-            dPDB[model][confo]["rmsd"] = sqrt(somme/n)
-
 def rmsd_local(dPDB): #on donne soit un dico specifique soit le dico general et les numeros des modeles et on renvoi une liste de tous les rmsd de tous les residus
     """
         Permet de calculer l'ensemble des distances entre les differents carbones alpha
@@ -240,7 +220,7 @@ def rmsd_local(dPDB): #on donne soit un dico specifique soit le dico general et 
 def rayon_giration(dPDB) :
     """ Calcul du rayon de giration de chaque conformation du dictionnaire donne en entree
         Rayon de giration : distance, pour chaque conformation, entre son centre de masse
-        et l'atome le plus eloigne de ce centre de masse.
+        et l'atome le plus eloigne.
     """
     for model in range(0,len(dPDB)):
         conflist = dPDB[model]["listChains"]
