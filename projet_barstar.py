@@ -597,7 +597,7 @@ ax[1].plot(range(0,len(vect76)),vect76)
 ax[1].set_ylabel("RMSD 76(en Angstrom)")
 fig.suptitle('RMSD residu 39', fontsize=12)
 fig.text(.5,.5,'RMSD residu 76',fontsize=12,ha='center')
-plt.show()
+#plt.show()
 
 #GRAPHE RMSD RESIDU 11
 vect11 = recup_11(dico)
