@@ -566,6 +566,17 @@ def recup_76(dPDB):
 
     return vect76
 
+def recup_11(dPDB):
+
+    vect11 = []
+    for i in sorted(dPDB.keys()):
+
+        for y in dPDB[i]["listChains"]:
+            if y == "11 ":
+                vect39.append(dPDB[i][y]["rmsd"])
+
+    return vect11
+
 #------------------------------------------------------------------
 # Ecriture des resultats dans des fichiers de sortie
 
@@ -586,4 +597,13 @@ ax[1].plot(range(0,len(vect76)),vect76)
 ax[1].set_ylabel("RMSD 76(en Angstrom)")
 fig.suptitle('RMSD residu 39', fontsize=12)
 fig.text(.5,.5,'RMSD residu 76',fontsize=12,ha='center')
+plt.show()
+
+#GRAPHE RMSD RESIDU 11
+vect11 = recup_11(dico)
+fig, ax = plt.subplots(2, sharex=True)
+fig.subplots_adjust(hspace=0.3)
+ax[0].plot(range(0,len(vect11)),vect11)
+ax[0].set_ylabel("RMSD 11(en Angstrom)")
+fig.suptitle('RMSD residu 11', fontsize=12)
 plt.show()
